@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>مجمع فخرية الطبي — لوحة مواعيد العيادة</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'IBM Plex Sans Arabic', 'Segoe UI', sans-serif;
+    background: #F5F7FA;
+    color: #102A43;
+    min-height: 100vh;
+  }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ===== شريط اسم المجمع ===== */
+  .clinic-banner {
+    background: linear-gradient(135deg, #1A6B8A, #2A9DC9);
+    text-align: center;
+    padding: 14px 20px 16px;
+  }
+  .clinic-banner h2 {
+    color: #fff;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: .3px;
+  }
+  .clinic-banner p {
+    color: #E3F2F8;
+    font-size: 12px;
+    margin-top: 3px;
+    font-weight: 500;
+  }
+
+  /* ===== الترويسة ===== */
+  header { background: #102A43; padding: 0 24px; }
+  .header-inner {
+    max-width: 1080px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 0; flex-wrap: wrap; gap: 14px;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .logo-mark {
+    width: 46px; height: 46px; border-radius: 13px;
+    background: linear-gradient(135deg, #2A9DC9, #1A6B8A);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .title { color: #fff; font-size: 19px; font-weight: 700; }
+  .subtitle { color: #9FB3C8; font-size: 12.5px; margin-top: 3px; }
+  .refresh-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #fff; color: #102A43; border: none; border-radius: 9px;
+    padding: 9px 16px; font-size: 13.5px; font-weight: 600;
+  }
+  .refresh-btn:disabled { opacity: .6; cursor: wait; }
+
+  main { max-width: 1080px; margin: 0 auto; padding: 26px 24px 70px; }
+
+  /* ===== الإحصائيات ===== */
+  .stats-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px; margin-bottom: 22px;
+  }
+  .stat-card {
+    background: #fff; border-radius: 14px; padding: 18px 20px;
+    display: flex; flex-direction: column; gap: 4px;
+    border: 1px solid #E4EAF0;
+  }
+  .stat-value { font-size: 30px; font-weight: 700; line-height: 1; }
+  .stat-label { font-size: 12.5px; color: #627D98; font-weight: 500; }
+
+  /* ===== الفلاتر ===== */
+  .filters-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .filter-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .filter-label { font-size: 12px; color: #627D98; font-weight: 600; min-width: 42px; }
+  .filter-btn {
+    background: #fff; border: 1px solid #D9E2EC; border-radius: 99px;
+    padding: 6px 15px; font-size: 12.5px; font-weight: 500; color: #334E68;
+    transition: all .15s ease;
+  }
+  .filter-btn.active { background: #102A43; border-color: #102A43; color: #fff; }
+
+  /* ===== البطاقات ===== */
+  .list { display: flex; flex-direction: column; gap: 12px; }
+  .card {
+    background: #fff; border-radius: 14px; border: 1px solid #E4EAF0;
+    display: flex; overflow: hidden;
+    animation: slideUp .25s ease;
+    transition: box-shadow .15s ease, transform .15s ease;
+  }
+  .card:hover { box-shadow: 0 4px 16px rgba(16,42,67,.08); transform: translateY(-1px); }
+  .dept-stripe { width: 5px; flex-shrink: 0; }
+  .card-body { padding: 16px 18px; flex: 1; display: flex; flex-direction: column; gap: 11px; }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+  .name-block { display: flex; flex-direction: column; gap: 3px; }
+  .patient-name { font-size: 16.5px; font-weight: 700; }
+  .phone { font-size: 12.5px; color: #2A9DC9; text-decoration: none; direction: ltr; text-align: right; }
+  .status-chip { font-size: 12px; font-weight: 700; border-radius: 99px; padding: 5px 13px; flex-shrink: 0; }
+  .meta-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .dept-chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 12.5px; font-weight: 600; border-radius: 99px; padding: 5px 13px;
+  }
+  .dept-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .meta { font-size: 13px; color: #334E68; display: inline-flex; align-items: center; gap: 5px; }
+  .card-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid #F0F4F8; padding-top: 11px; gap: 10px; flex-wrap: wrap;
+  }
+  .created-at { font-size: 11.5px; color: #829AB1; }
+  .cancel-btn {
+    background: #fff; color: #B03030; border: 1.5px solid #E8C5C5;
+    border-radius: 9px; padding: 7px 16px; font-size: 12.5px; font-weight: 600;
+    transition: all .15s ease;
+  }
+  .cancel-btn:hover { background: #B03030; color: #fff; }
+
+  /* ===== الحالات الفارغة ===== */
+  .empty-state {
+    background: #fff; border: 1px dashed #C9D6E2; border-radius: 14px;
+    padding: 60px 20px; text-align: center;
+  }
+  .error-box {
+    background: #FBEAEA; border: 1px solid #E8C5C5; color: #7A2020;
+    border-radius: 14px; padding: 26px 24px; font-size: 14px;
+  }
+
+  /* ===== النافذة المنبثقة ===== */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(16,42,67,.45);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; z-index: 50;
+  }
+  .modal {
+    background: #fff; border-radius: 16px; padding: 26px 26px 22px;
+    max-width: 420px; width: 100%; animation: slideUp .2s ease;
+  }
+  .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+  .modal-text { font-size: 13.5px; color: #486581; line-height: 1.9; margin-bottom: 20px; }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-cancel {
+    background: #F0F4F8; color: #334E68; border: none; border-radius: 9px;
+    padding: 9px 18px; font-size: 13.5px; font-weight: 600;
+  }
+  .modal-confirm {
+    background: #B03030; color: #fff; border: none; border-radius: 9px;
+    padding: 9px 18px; font-size: 13.5px; font-weight: 600;
+  }
+  .modal-confirm:disabled, .modal-cancel:disabled { opacity: .6; cursor: wait; }
+
+  /* ===== الإشعار ===== */
+  .toast {
+    position: fixed; bottom: 24px; right: 50%; transform: translateX(50%);
+    color: #fff; border-radius: 11px; padding: 12px 22px;
+    font-size: 13.5px; font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0,0,0,.18);
+    animation: slideUp .25s ease; z-index: 60;
+  }
+
+  @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .toast { transform: translateX(50%); }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+  .pulsing { animation: pulse 1.2s infinite; }
+</style>
+</head>
+<body>
+
+<div class="clinic-banner">
+  <h2>مجمع فخرية الطبي</h2>
+  <p>نظام إدارة المواعيد الإلكتروني</p>
+</div>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="logo-mark">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2C8.5 2 5 4.5 5 9c0 3.5 1.5 5 2 8.5.3 2 .8 4.5 2.2 4.5 1.6 0 1.3-3.5 2.8-3.5s1.2 3.5 2.8 3.5c1.4 0 1.9-2.5 2.2-4.5.5-3.5 2-5 2-8.5 0-4.5-3.5-7-7-7z" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="title">لوحة مواعيد العيادة</h1>
+        <p class="subtitle">إدارة حجوزات واتساب — مباشرة من جداول البيانات</p>
+      </div>
+    </div>
+    <button class="refresh-btn" id="refreshBtn" onclick="fetchAppointments()">⟳ تحديث</button>
+  </div>
+</header>
+
+<main>
+  <section class="stats-row">
+    <div class="stat-card"><span class="stat-value" style="color:#102A43" id="statTotal">0</span><span class="stat-label">إجمالي المواعيد</span></div>
+    <div class="stat-card"><span class="stat-value" style="color:#1E7A3C" id="statConfirmed">0</span><span class="stat-label">مواعيد مؤكدة</span></div>
+    <div class="stat-card"><span class="stat-value" style="color:#B03030" id="statCancelled">0</span><span class="stat-label">مواعيد ملغاة</span></div>
+  </section>
+
+  <section class="filters-bar">
+    <div class="filter-group" id="deptFilters">
+      <span class="filter-label">القسم</span>
+    </div>
+    <div class="filter-group" id="statusFilters">
+      <span class="filter-label">الحالة</span>
+    </div>
+  </section>
+
+  <div id="content"></div>
+</main>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+const API_BASE = "https://mazoon1.abdulonline.online/webhook";
+
+const DEPT_COLORS = {
+  "عيادة الأسنان":   { bg: "#E8F4F8", text: "#1A6B8A", dot: "#2A9DC9" },
+  "العناية بالبشرة": { bg: "#F0EDE4", text: "#7A6840", dot: "#B89B5E" },
+  "الليزر":          { bg: "#F3EDF7", text: "#6B4E8A", dot: "#9B6EC9" },
+};
+const DEFAULT_DEPT = { bg: "#EEF2F6", text: "#334E68", dot: "#829AB1" };
+const STATUS_STYLES = {
+  "مؤكد": { bg: "#E6F4EA", text: "#1E7A3C" },
+  "ملغي": { bg: "#FBEAEA", text: "#B03030" },
+};
+
+let appointments = [];
+let deptFilter = "الكل";
+let statusFilter = "الكل";
+let cancelTarget = null;
+
+function formatPhone(p) { return (p || "").replace("whatsapp:", ""); }
+
+async function fetchAppointments() {
+  const btn = document.getElementById("refreshBtn");
+  btn.disabled = true;
+  document.getElementById("content").innerHTML =
+    '<div class="empty-state"><div class="pulsing" style="font-size:15px;color:#627D98">جارٍ تحميل المواعيد…</div></div>';
+  try {
+    const res = await fetch(`${API_BASE}/clinic-appointments`);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    const list = Array.isArray(data) ? data : [data];
+    appointments = list.filter(a => a && a.ID);
+    render();
+  } catch (e) {
+    document.getElementById("content").innerHTML =
+      '<div class="error-box"><strong style="display:block;margin-bottom:6px">تعذر تحميل البيانات</strong>' +
+      '<span style="font-size:13.5px">تأكد أن الـ Workflow مفعّل في N8N وأن CORS مضبوط.</span><br>' +
+      '<button class="refresh-btn" style="margin-top:14px" onclick="fetchAppointments()">إعادة المحاولة</button></div>';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function render() {
+  renderStats();
+  renderFilters();
+  renderList();
+}
+
+function renderStats() {
+  document.getElementById("statTotal").textContent = appointments.length;
+  document.getElementById("statConfirmed").textContent = appointments.filter(a => a.Status === "مؤكد").length;
+  document.getElementById("statCancelled").textContent = appointments.filter(a => a.Status === "ملغي").length;
+}
+
+function renderFilters() {
+  const depts = ["الكل", ...new Set(appointments.map(a => a.Department).filter(Boolean))];
+  const deptEl = document.getElementById("deptFilters");
+  deptEl.innerHTML = '<span class="filter-label">القسم</span>' + depts.map(d =>
+    `<button class="filter-btn ${deptFilter === d ? "active" : ""}" onclick="setDept('${d}')">${d}</button>`
+  ).join("");
+
+  const statuses = ["الكل", "مؤكد", "ملغي"];
+  const stEl = document.getElementById("statusFilters");
+  stEl.innerHTML = '<span class="filter-label">الحالة</span>' + statuses.map(s =>
+    `<button class="filter-btn ${statusFilter === s ? "active" : ""}" onclick="setStatus('${s}')">${s}</button>`
+  ).join("");
+}
+
+function setDept(d) { deptFilter = d; render(); }
+function setStatus(s) { statusFilter = s; render(); }
+
+function renderList() {
+  const filtered = appointments.filter(a => {
+    const dOk = deptFilter === "الكل" || a.Department === deptFilter;
+    const sOk = statusFilter === "الكل" || a.Status === statusFilter;
+    return dOk && sOk;
+  });
+
+  const content = document.getElementById("content");
+
+  if (filtered.length === 0) {
+    content.innerHTML =
+      '<div class="empty-state"><div style="font-size:38px;margin-bottom:10px">🗓️</div>' +
+      '<div style="font-weight:600;color:#334E68;margin-bottom:4px">لا توجد مواعيد مطابقة</div>' +
+      `<div style="font-size:13.5px;color:#627D98">${appointments.length === 0 ? "عندما يحجز مريض عبر واتساب سيظهر موعده هنا." : "جرّب تغيير الفلاتر أعلاه."}</div></div>`;
+    return;
+  }
+
+  content.innerHTML = '<section class="list">' + filtered.slice().reverse().map(a => {
+    const dept = DEPT_COLORS[a.Department] || DEFAULT_DEPT;
+    const st = STATUS_STYLES[a.Status] || STATUS_STYLES["مؤكد"];
+    const phone = formatPhone(a.Phone);
+    return `
+    <article class="card">
+      <div class="dept-stripe" style="background:${dept.dot}"></div>
+      <div class="card-body">
+        <div class="card-top">
+          <div class="name-block">
+            <span class="patient-name">${a.Name || "—"}</span>
+            <a class="phone" href="https://wa.me/${phone.replace("+","")}" target="_blank">${phone}</a>
+          </div>
+          <span class="status-chip" style="background:${st.bg};color:${st.text}">${a.Status || "مؤكد"}</span>
+        </div>
+        <div class="meta-row">
+          <span class="dept-chip" style="background:${dept.bg};color:${dept.text}">
+            <span class="dept-dot" style="background:${dept.dot}"></span>${a.Department || "—"}
+          </span>
+          <span class="meta">👨‍⚕️ ${a.Doctor || "—"}</span>
+          <span class="meta">📅 ${a.Date || "—"}</span>
+          <span class="meta">⏰ ${a.Time || "—"}</span>
+        </div>
+        <div class="card-footer">
+          <span class="created-at">سُجّل في ${a.Created_At || "—"}</span>
+          ${a.Status === "مؤكد" ? `<button class="cancel-btn" onclick='openCancel(${JSON.stringify(JSON.stringify(a))})'>إلغاء الموعد</button>` : ""}
+        </div>
+      </div>
+    </article>`;
+  }).join("") + "</section>";
+}
+
+function openCancel(jsonStr) {
+  cancelTarget = JSON.parse(jsonStr);
+  document.getElementById("modalRoot").innerHTML = `
+    <div class="overlay" onclick="closeModal(event)">
+      <div class="modal" onclick="event.stopPropagation()">
+        <h3 class="modal-title">إلغاء موعد ${cancelTarget.Name}؟</h3>
+        <p class="modal-text">${cancelTarget.Department} — ${cancelTarget.Date} الساعة ${cancelTarget.Time}<br>
+        سيتحول الموعد إلى «ملغي» ويُفتح الوقت للحجز من جديد.</p>
+        <div class="modal-actions">
+          <button class="modal-cancel" onclick="closeModal()">تراجع</button>
+          <button class="modal-confirm" id="confirmBtn" onclick="confirmCancel()">تأكيد الإلغاء</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function closeModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById("modalRoot").innerHTML = "";
+  cancelTarget = null;
+}
+
+async function confirmCancel() {
+  if (!cancelTarget) return;
+  const btn = document.getElementById("confirmBtn");
+  btn.disabled = true;
+  btn.textContent = "جارٍ الإلغاء…";
+  try {
+    const res = await fetch(`${API_BASE}/clinic-cancel`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        row_number: cancelTarget.row_number,
+        slot_row: cancelTarget.Slot_Row || "",
+      }),
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    closeModal();
+    showToast("تم إلغاء الموعد وفتح الوقت للحجز من جديد", "success");
+    fetchAppointments();
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = "تأكيد الإلغاء";
+    showToast("فشل إلغاء الموعد — حاول مرة أخرى", "error");
+  }
+}
+
+function showToast(msg, type) {
+  document.getElementById("toastRoot").innerHTML =
+    `<div class="toast" style="background:${type === "error" ? "#B03030" : "#1E7A3C"}">${msg}</div>`;
+  setTimeout(() => { document.getElementById("toastRoot").innerHTML = ""; }, 3500);
+}
+
+fetchAppointments();
+</script>
+</body>
+</html>
